@@ -11,27 +11,15 @@ library(texreg)
 # Load data #######
 load("data/panel_dat.rda") 
 
-# panel_dat = panel_dat %>% dplyr::select(date, CACODE,
-#                                             policeUC_arrest_bin, cl_quart_sw, cl_quarter, policeUC_count_bin, policeUni_car_count_bin, pArrest_count_sw, violence_escalation,
-#                                         indoorSp_protests, legCo,
-#                                             time, time2, time3, weekend, day,
-#                                         indoorSp_UCArrests300m, indoorSp_UCArrests200m, indoorSp_UCArrests100m,
-#                                         policeUC_arrest_bin_park1000m, policeUC_arrest_bin_park500m, policeUC_arrest_bin_park100m, bldg_park_bin) # 19 vars
-
-# save(panel_dat, file = "data/panel_dat.rda")
-
-
 
 ## Table A.1: First Stage Results for 2SLS ----------
 model_vio_feols_iv <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation
                             | CACODE |  cl_quarter + cl_quart_sw ~ weekend + day ,
                             data=panel_dat, panel.id = ~ CACODE)
-# summary(model_vio_feols_iv, cluster = ~CACODE, stage = 1:2) 
 
 model_vio_feols_iv.t <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + time + time2 + time3 
                               | CACODE | cl_quarter + cl_quart_sw ~ weekend + day ,
                               data=panel_dat, panel.id = ~ CACODE)
-# summary(model_vio_feols_iv.t, cluster = ~CACODE, stage = 1:2) 
 
 result_vio_1stage = etable(model_vio_feols_iv, model_vio_feols_iv.t,
                            fitstat='ivf',
@@ -381,11 +369,8 @@ screenreg(list(re.mod.logit, re.mod.logit.t),
           omit.coef = "(time|time2|time3|(Intercept))",
           custom.model.names = c(
             "Logit", "Logit"),
-          stars = c(0.01, 0.05, 0.10),
           custom.coef.names = idvs2,
           custom.gof.rows = list(Model = c("RE", "RE"), TimePoly = c("N", "Y"))) 
-
-
 
 
 

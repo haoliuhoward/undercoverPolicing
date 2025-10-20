@@ -7,9 +7,7 @@ geometry: margin=1.in
 fontsize: 10pt
 ---
 
-```{r, echo=FALSE}
-start.time <- Sys.time()
-```
+Compiling this file will take roughly 15 minute due to the convergence time needed for the `glmmTMB` package.
 
 ```{r setup, warning=FALSE, message=FALSE}
 # load libraries
@@ -111,6 +109,8 @@ screenreg(list(re.mod.logit, re.mod.logit.t),
 
 ## Table A.3. Effects on Undercover Policing During Covid Lockdown
 
+\begingroup\footnotesize
+
 ```{r, warning=FALSE}
 load(here("data","panel_covid.rda"))
 
@@ -165,9 +165,9 @@ screenreg(list(model_feols, model_feols.t,
           ) 
 ```
 
+
 ## Table A.4. Effects of Indoor Spaces on Arrests by Undercover Police (with radius) 
 
-\begingroup\footnotesize
 
 ```{r, warning=FALSE}
 # 300m 
@@ -412,7 +412,7 @@ screenreg(list(model_vio_feols, model_vio_feols.t,
 
 ## Table A.7. Effects on Undercover Policing (1km grid, quarter-day level)
 
-\begingroup\tiny
+\begingroup\footnotesize
 
 ```{r, warning=FALSE}
 
@@ -475,6 +475,8 @@ screenreg(list(model_vio_feols, model_vio_feols.t,
 
 ## Table A.8. Effects of Indoor Spaces (1km grid, quarter-day level) 
 
+\begingroup\footnotesize
+
 ```{r, warning=FALSE}
 re.mod.logit <- glmmTMB(policeUC_arrest_bin ~ cl_quart_sw + cl_quarter +
                           policeUC_count_bin + policeUni_car_count_bin +
@@ -512,6 +514,8 @@ screenreg(list(re.mod.logit, re.mod.logit.t),
 
 ```
 
+\endgroup
+
 ## Figure A.1. Distribution of Police Arrests During the Day of Week
 
 ```{r, warning=FALSE}
@@ -534,12 +538,3 @@ g1
 ```
 
 
-
-
-
-```{r, echo=FALSE}
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-```
-
-Compiling this file will take roughly `r round(time.taken, 0)` minute due to the convergence time needed for the `glmmTMB` package.

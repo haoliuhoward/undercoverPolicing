@@ -1,0 +1,35 @@
+
+\begin{table}
+\begin{center}
+\begin{tabular}{l c c}
+\hline
+ & Logit & Logit \\
+\hline
+Closeness to protest zone & $2.269$       & $-0.122$       \\
+                          & $(3.206)$     & $(3.342)$      \\
+Protest zone              & $1.448^{***}$ & $1.434^{***}$  \\
+                          & $(0.145)$     & $(0.146)$      \\
+Undercover Police         & $27.428$      & $27.663^{***}$ \\
+                          & $(3401.208)$  & $(0.413)$      \\
+Uniformed Police          & $0.566^{*}$   & $0.590^{*}$    \\
+                          & $(0.286)$     & $(0.287)$      \\
+Arrests nearby            & $5.294^{***}$ & $5.554^{***}$  \\
+                          & $(0.974)$     & $(0.979)$      \\
+Protest violence          & $0.797^{***}$ & $0.833^{***}$  \\
+                          & $(0.200)$     & $(0.201)$      \\
+Indoor spaces             & $0.398$       & $0.399$        \\
+                          & $(0.208)$     & $(0.209)$      \\
+LegCo                     & $-0.336$      & $-0.317$       \\
+                          & $(0.753)$     & $(0.760)$      \\
+\hline
+Model                     & RE            & RE             \\
+TimePoly                  & N             & Y              \\
+Num. obs.                 & $1225008$     & $1225008$      \\
+Num. groups: grid\_id     & $1692$        & $1692$         \\
+\hline
+\multicolumn{3}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\caption{Statistical models}
+\label{table:coefficients}
+\end{center}
+\end{table}
