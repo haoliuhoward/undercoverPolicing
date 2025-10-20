@@ -8,7 +8,7 @@ library(texreg)
 
 
 # Load data -----------------------------------------
-load("data/panelDat.rda") # 46 vars
+load("data/panel_dat.rda") 
 
 # model 1
 model_vio_feols <- feols(policeUC_arrest_bin 

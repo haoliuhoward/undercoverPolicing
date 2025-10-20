@@ -1,0 +1,414 @@
+rm(list=ls(all=TRUE))
+cat("\014")
+
+library(tidyverse)
+library(dplyr)
+library(fixest)
+library(glmmTMB)
+library(texreg)
+
+
+# Load data #######
+load("data/panel_dat.rda") 
+
+# panel_dat = panel_dat %>% dplyr::select(date, CACODE,
+#                                             policeUC_arrest_bin, cl_quart_sw, cl_quarter, policeUC_count_bin, policeUni_car_count_bin, pArrest_count_sw, violence_escalation,
+#                                         indoorSp_protests, legCo,
+#                                             time, time2, time3, weekend, day,
+#                                         indoorSp_UCArrests300m, indoorSp_UCArrests200m, indoorSp_UCArrests100m,
+#                                         policeUC_arrest_bin_park1000m, policeUC_arrest_bin_park500m, policeUC_arrest_bin_park100m, bldg_park_bin) # 19 vars
+
+# save(panel_dat, file = "data/panel_dat.rda")
+
+
+
+## Table A.1: First Stage Results for 2SLS ----------
+model_vio_feols_iv <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation
+                            | CACODE |  cl_quarter + cl_quart_sw ~ weekend + day ,
+                            data=panel_dat, panel.id = ~ CACODE)
+# summary(model_vio_feols_iv, cluster = ~CACODE, stage = 1:2) 
+
+model_vio_feols_iv.t <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + time + time2 + time3 
+                              | CACODE | cl_quarter + cl_quart_sw ~ weekend + day ,
+                              data=panel_dat, panel.id = ~ CACODE)
+# summary(model_vio_feols_iv.t, cluster = ~CACODE, stage = 1:2) 
+
+result_vio_1stage = etable(model_vio_feols_iv, model_vio_feols_iv.t,
+                           fitstat='ivf',
+                           stage = 1, 
+                           digits = "r3",
+                           fontsize = "tiny",
+                           dict=c("cl_quarter" = "Protest zone", "cl_quart_sw" = "Close to protest zone" ,
+                                  "policeUC_count_bin" = "Undercover Police", "policeUni_car_count_bin" ="Uniformed Police",
+                                  "pArrest_count_sw" ="Arrests nearby", "t" = "time", "t2" = "time2", "t3" = "time3", 
+                                  "violence_escalation" = "Protest violence", "weekend" = "Weekend", "day" ="Day"),
+                           group = list("_^TimePoly" = "time"),
+                           tex = T
+)
+result_vio_1stage
+
+
+## Table A.2 Effects of Indoor Spaces (Logit) -----------
+
+re.mod.logit <- glmmTMB(policeUC_arrest_bin ~
+                          cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo  + (1 | CACODE), data = panel_dat, family=binomial(link="logit")) # 20 sec
+
+re.mod.logit.t <- glmmTMB(policeUC_arrest_bin ~
+                             cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo +
+                            time + time2 + time3 + (1 | CACODE), data = panel_dat, family=binomial(link="logit")) # 1 min 
+
+idvs2 = c("Intercept", 
+          "Close to protest zone", "Protest zone", "Undercover Police", "Uniformed Police", "Arrests nearby", "Protest violence",
+          "Indoor spaces", "LegCo",
+          "time", "time2", "time3")
+
+screenreg(list(re.mod.logit, re.mod.logit.t),
+          include.variance=F, include.intercept = F,
+          include.rsquared = F, include.loglik = F,
+          include.aic = F, include.adjr = F,
+          digits = 3,
+          custom.model.names = c(
+            "Logit", "Logit"),
+          custom.coef.names = idvs2,
+          stars = c(0.01, 0.05, 0.10),
+          custom.gof.rows = list(Model = c("RE", "RE"), TimePoly = c("N", "Y")),
+          omit.coef = "(time|time2|time3|(Intercept))"
+          ) 
+
+
+
+## Table A.3. Effects on Undercover Policing During Covid Lockdown -----------
+
+load("data/panel_covid.rda")
+
+model_feols <- feols(policeUC_arrest_bin 
+                           ~ cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw 
+                           | CACODE, 
+                           data=panel_covid, panel.id = ~ CACODE) 
+
+
+model_feols.t <- feols(policeUC_arrest_bin
+                       ~ cl_quart_sw + cl_quarter +  policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + time+ time2 + time3
+                       | CACODE, 
+                       data=panel_covid, panel.id = ~ CACODE) 
+
+model_feols_iv <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw 
+                        | CACODE | cl_quart_sw + cl_quarter ~ weekend + day, 
+                        data=panel_covid, panel.id = ~ CACODE)
+
+model_feols_iv.t <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + time +time2 + time3 
+                          | CACODE | cl_quart_sw + cl_quarter ~ weekend + day ,
+                          data=panel_covid, panel.id = ~ CACODE)
+
+
+idvs2 = c( "Closeness to protest zone", "Protest zone",  "Undercover Police", "Uniformed Police", "Arrests nearby",
+          "time", "time2", "time3",
+          "Predicted closeness to protest zone", "Predicted protest zone")
+
+screenreg(list(model_feols, model_feols.t,
+               model_feols_iv, model_feols_iv.t),
+          include.variance=F, include.intercept = F,
+          include.rsquared = F, include.loglik = F,
+          include.aic = F, include.adjr = F,
+          digits = 4,
+          stars = c(0.01, 0.05, 0.10),
+          custom.model.names = c(
+            "OLS", "OLS",
+            "2SLS","2SLS"),
+          custom.coef.names = idvs2,
+          custom.gof.rows = list(Model = c("FE", "FE", "FE", "FE"), TimePoly = c("N", "Y", "N", "Y")),
+          omit.coef = "(time|time2|time3|(Intercept))"
+          ) 
+
+## Table A.4. Effects of Indoor Spaces on Arrests by Undercover Police (with radius) ---------
+
+
+# 300m 
+re_300m.mod.indoorSp <- glmmTMB(
+  indoorSp_UCArrests300m
+  ~ cl_quart_sw + cl_quarter + policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
+    legCo + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_300m.mod.indoorSp)
+
+
+re_300m.mod.t.indoorSp <- glmmTMB(
+  indoorSp_UCArrests300m
+  ~ cl_quart_sw + cl_quarter + policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
+    legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_300m.mod.t.indoorSp) 
+
+
+# 200m 
+re_200m.mod.indoorSp <- glmmTMB(
+  indoorSp_UCArrests200m
+  ~ cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
+    legCo + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_200m.mod.indoorSp)
+
+
+re_200m.mod.t.indoorSp <- glmmTMB(
+  indoorSp_UCArrests200m
+  ~ cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
+    legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_200m.mod.t.indoorSp)
+
+
+# 100m 
+re_100m.mod.indoorSp <- glmmTMB(
+  indoorSp_UCArrests100m
+  ~ cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
+    legCo + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_100m.mod.indoorSp)
+
+
+re_100m.mod.t.indoorSp <- glmmTMB(
+  indoorSp_UCArrests100m
+  ~ cl_quart_sw + cl_quarter + policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
+    legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_100m.mod.t.indoorSp) 
+
+
+idvs = c( "Intercept", "Close to protest zone", "Protest zone", 
+          "Undercover Police", "Uniformed Police", "Arrests nearby", "Protest violence",
+          "Indoor spaces", "LegCo",
+          "time", "time2", "time3")
+
+screenreg(list(re_300m.mod.indoorSp, re_300m.mod.t.indoorSp,
+               re_200m.mod.indoorSp, re_200m.mod.t.indoorSp,
+               re_100m.mod.indoorSp, re_100m.mod.t.indoorSp),
+               include.variance=F, include.intercept = F,
+               custom.coef.names = idvs,
+               digits = 4,
+               include.loglik = FALSE, 
+               include.aic = FALSE,
+               include.rsquared = FALSE,
+               include.adjrs = FALSE,
+               custom.model.names = c(
+                 "300m", "300m",
+                 "200m","200m",
+                 "100m", "100m"),
+               stars = c(0.01, 0.05, 0.10),
+               custom.gof.rows = list(Model = c("RE", "RE","RE", "RE", "RE",  "RE"), TimePoly = c("N", "Y", "N", "Y", "N", "Y")),
+               caption = "Effects of Indoor Spaces on Arrests by Undercover Police (with radius)",
+               omit.coef = "(time|time2|time3|(Intercept))"
+)
+
+
+
+## Table A.5. Effects of Outdoor Parks on Arrests by Undercover Police (with radius) ----------------------------------------
+
+# 1. 1000m 
+re_park1000m <- glmmTMB(
+  policeUC_arrest_bin_park1000m
+  ~  cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + bldg_park_bin + legCo + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_park1000m) 
+
+re_t_park1000m <- glmmTMB(
+  policeUC_arrest_bin_park1000m
+  ~  cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + bldg_park_bin + legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_t_park1000m) 
+
+# 2. 500m
+re_park500m <- glmmTMB(
+  policeUC_arrest_bin_park500m
+  ~  cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + bldg_park_bin + legCo + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_park500m) 
+
+re_t_park500m <- glmmTMB(
+  policeUC_arrest_bin_park500m
+  ~  cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + bldg_park_bin + legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_t_park500m) 
+
+# 3. 100m
+re_park100m <- glmmTMB(
+  policeUC_arrest_bin_park100m
+  ~  cl_quart_sw + cl_quarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + bldg_park_bin + legCo + (1 | CACODE), data = panel_dat, family="gaussian")
+summary(re_park100m)
+
+idvs = c("Intercept",
+         "Protest zone", "Close to protest zone", 
+         "Undercover Police", "Uniformed Police", "Arrests nearby", 
+         "Outdoor parks", "LegCo",
+         "time", "time2", "time3")
+
+screenreg(list(re_park1000m, re_t_park1000m, 
+               re_park500m,  re_t_park500m, 
+               re_park100m ),
+          include.loglik = FALSE, 
+          include.aic = FALSE,
+          include.rsquared = FALSE,
+          include.adjrs = FALSE,
+          custom.coef.names = idvs,
+          custom.model.names = c(
+            "1000m", "1000m",
+            "500m", "500m",
+            "100m"),
+          stars = c(0.01, 0.05, 0.10),
+          include.variance=F, include.intercept = F,
+          custom.gof.rows = list(Model = c("RE", "RE", "RE", "RE", "RE"),
+                                 TimePoly = c("N", "Y", "N", "Y","N")),
+          caption = "Effects of Outdoor Parks on Arrests by Undercover Police (with radius)",
+          omit.coef = "(time|time2|time3|(Intercept))",
+          digits = 3) 
+
+
+## Table A.6. Effects on Undercover Policing (3 hour window) -------
+
+load("data/panel_dat3hr.rda")
+
+model_vio_feols <- feols(policeUC_arrest_bin 
+                         ~ cl_miniquart_sw +  cl_miniquarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation 
+                         | CACODE, 
+                         data=panel_dat3hr, panel.id = ~ CACODE) 
+
+
+model_vio_feols.t <- feols(policeUC_arrest_bin
+                           ~ cl_miniquart_sw +  cl_miniquarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + time + time2 + time3 
+                           | CACODE, 
+                           data=panel_dat3hr, panel.id = ~ CACODE) 
+
+
+model_vio_feols_iv <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation
+                            | CACODE |  cl_miniquart_sw + cl_miniquarter ~ weekend + day ,
+                            data=panel_dat3hr, panel.id = ~ CACODE)
+
+model_vio_feols_iv.t <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + time + time2 + time3 
+                              | CACODE | cl_miniquart_sw + cl_miniquarter ~ weekend + day ,
+                              data=panel_dat3hr, panel.id = ~ CACODE)
+
+re_vio.mod <- glmmTMB(policeUC_arrest_bin ~  cl_miniquart_sw + cl_miniquarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo  + (1 | CACODE), data = panel_dat3hr, family="gaussian") 
+
+
+re_vio.mod.t <- glmmTMB(policeUC_arrest_bin ~  cl_miniquart_sw + cl_miniquarter  +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat3hr, family="gaussian")
+
+
+
+idvs = c("Closeness to protest zone",  "Protest zone", 
+         "Undercover Police", "Uniformed Police", "Arrests nearby", "Protest violence",
+         "time", "time2", "time3",
+         "Predicted closeness to protest zone","Predicted protest zone", 
+         "Intercept", 
+         "Indoor spaces", "LegCo"
+)
+
+screenreg(list(model_vio_feols, model_vio_feols.t,
+               model_vio_feols_iv,model_vio_feols_iv.t,
+               re_vio.mod, re_vio.mod.t),
+          include.variance=F, include.intercept = F,
+          include.rsquared = F, include.loglik = F,
+          include.aic = F, include.adjr = F,
+          digits = 4,
+          stars = c(0.01, 0.05, 0.10),
+          custom.model.names = c(
+            "OLS", "OLS",
+            "2SLS","2SLS",
+            "OLS", "OLS"),
+          custom.coef.names = idvs,
+          custom.gof.rows = list(Model = c("FE", "FE", "FE", "FE", "RE", "RE"), TimePoly = c("N", "Y", "N", "Y","N", "Y")),
+          omit.coef = "(time|time2|time3|(Intercept))"
+) 
+
+
+## Table A.7. Effects on Undercover Policing (1km grid, quarter-day level) -------
+
+load("data/panel_dat6hr_grid.rda")
+
+
+model_vio_feols <- feols(policeUC_arrest_bin 
+                         ~ cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation 
+                         | grid_id, 
+                         data=panel_dat6hr_grid, panel.id = ~ grid_id) 
+# summary(model_vio_feols, cluster = ~grid_id)
+
+model_vio_feols.t <- feols(policeUC_arrest_bin
+                           ~ cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + 
+                             time + time2 + time3 
+                           | grid_id, 
+                           data=panel_dat6hr_grid, panel.id = ~ grid_id) 
+# summary(model_vio_feols.t, cluster = ~grid_id) 
+
+model_vio_feols_iv <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation
+                            | grid_id |  cl_quart_sw + cl_quarter  ~ weekend + day ,
+                            data=panel_dat6hr_grid, panel.id = ~ grid_id)
+
+model_vio_feols_iv.t <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + 
+                                time + time2 + time3 
+                              | grid_id | cl_quart_sw + cl_quarter ~ weekend + day ,
+                              data=panel_dat6hr_grid, panel.id = ~ grid_id)
+
+
+idvs = c( "Closeness to protest zone",  "Protest zone","Undercover Police", "Uniformed Police", "Arrests nearby", "Protest violence",
+          "time", "time2", "time3",
+          "Predicted closeness to protest zone", "Predicted protest zone"
+)
+
+screenreg(list(model_vio_feols, model_vio_feols.t,
+               model_vio_feols_iv,model_vio_feols_iv.t),
+          include.variance=F, include.intercept = F,
+          include.rsquared = F, include.loglik = F,
+          include.aic = F, include.adjr = F,
+          digits = 4,
+          stars = c(0.01, 0.05, 0.10),
+          omit.coef = "(time|time2|time3|(Intercept))",
+          custom.model.names = c(
+            "OLS", "OLS",
+            "2SLS","2SLS"),
+          custom.coef.names = idvs,
+          custom.gof.rows = list(Model = c("FE", "FE", "FE", "FE"), TimePoly = c("N", "Y", "N", "Y"))) 
+
+
+## Table A.8. Effects of Indoor Spaces (1km grid, quarter-day level) ----------
+
+re.mod.logit <- glmmTMB(policeUC_arrest_bin ~
+                          cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo  + (1 | grid_id), data = panel_dat6hr_grid, family=binomial(link="logit"))
+# summary(re.mod.logit)
+
+re.mod.logit.t <- glmmTMB(policeUC_arrest_bin ~
+                            cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo + time + time2 + time3 + (1 | grid_id), data = panel_dat6hr_grid, family=binomial(link="logit"))
+# summary(re.mod.logit.t) # 5min
+
+
+idvs2 = c("Intercept", 
+          "Closeness to protest zone",  "Protest zone","Undercover Police", "Uniformed Police", "Arrests nearby", "Protest violence",
+          "Indoor spaces", "LegCo",
+          "time", "time2", "time3")
+
+screenreg(list(re.mod.logit, re.mod.logit.t),
+          include.variance=F, include.intercept = F,
+          include.rsquared = F, include.loglik = F,
+          include.aic = F, include.adjr = F,
+          digits = 3,
+          omit.coef = "(time|time2|time3|(Intercept))",
+          custom.model.names = c(
+            "Logit", "Logit"),
+          stars = c(0.01, 0.05, 0.10),
+          custom.coef.names = idvs2,
+          custom.gof.rows = list(Model = c("RE", "RE"), TimePoly = c("N", "Y"))) 
+
+
+
+
+
+## Figure A.1. Distribution of Police Arrests During the Day of Week ----------------------------------
+load("data/police_vio.rda")
+
+# Arrest day
+police_arrest = police_vio %>% dplyr::select("date_formatted","day","arrested")
+police_arrest_dat = police_arrest %>% filter(arrested >0)
+arrest_counts = police_arrest_dat$day %>% table %>% as.data.frame()
+colnames(arrest_counts) = c("Day", "Frequency") 
+
+ord <- c("Monday","Tuesday","Wednesday","Thursday", "Friday", "Saturday", "Sunday")
+
+arrest_counts$Day <- factor(arrest_counts$Day,levels=ord)
+
+g1 = ggplot(arrest_counts, aes(x=Day, y=Frequency)) + 
+  geom_bar(stat = "identity") + theme_bw() + ylab("Police Arrest Days") +
+  theme(text = element_text(size = 12)) 
+g1
+
+
+
+
+
+
