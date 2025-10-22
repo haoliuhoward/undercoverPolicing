@@ -26,6 +26,17 @@ The replication data and code necessary to recreate Figures 2, 3, 4 A9, and A11 
 - shapely (1.7.0)
 - alphashape (1.3.1)
 
+To build the necessary python environment, please run the following steps:
+
+1. Clone this repository (`git clone https://github.com/haoliuhoward/undercoverPolicing.git`).
+2. Install [Anaconda](https://www.anaconda.com/download) or [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/main).
+3. Within a terminal, navigate to the cloned repository's root directory.
+4. Within the terminal, navigate to the `figures/` directory.
+5. Run `conda env create -f undercover.yml` to create the necessary python environment.
+6. Activate the python environment by running `conda activate undercover`.
+7. Navigate your terminal into the folder with the code you wish to run (e.g., `cd fig2/`).
+8. Run the code with `python fig2.py`.
+
 
 Citations
 ---
