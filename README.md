@@ -31,7 +31,7 @@ To build the necessary python environment, please run the following steps:
 1. Clone this repository (`git clone https://github.com/haoliuhoward/undercoverPolicing.git`).
 2. Install [Anaconda](https://www.anaconda.com/download) or [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/main).
 3. Within a terminal, navigate to the cloned repository's root directory.
-4. Within the terminal, navigate to the `figures/` directory.
+4. Within the terminal, navigate to the `figures/` subdirectory.
 5. Run `conda env create -f undercover.yml` to create the necessary python environment.
 6. Activate the python environment by running `conda activate undercover`.
 7. Navigate your terminal into the folder with the code you wish to run (e.g., `cd fig2/`).
