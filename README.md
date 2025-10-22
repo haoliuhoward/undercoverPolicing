@@ -22,6 +22,9 @@ The replication data and code necessary to recreate Figures 2, 3, 4 A9, and A11 
 - pillow (8.1.2)
 - matplotlib (3.3.3)  
   - mpl_toolkits (should be provided with matplotlib)
+- datetime
+- shapely (1.7.0)
+- alphashape (1.3.1)
 
 
 Citations
