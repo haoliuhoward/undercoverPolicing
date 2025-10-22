@@ -1,4 +1,5 @@
-# Covert Assignments: Undercover Infiltration and the Repression of Protests
+# Covert Assignments
+## Undercover Infiltration and the Repression of Protests
 
 Authors
 ---
