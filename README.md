@@ -13,7 +13,7 @@ This folder contains all materials needed to replicate our results. You can find
 
 Figure Replication Instructions
 ---
-The replication data and code necessary to recreate Figures 2, 3, 4 A9, and A11 are contained within the */figures* directory. These figures were created with Python. A full environment file *environment.yml* is provided, but may be difficult to recreate. The minimum required packages are given below. Version numbers are given for reference, though other versions of many of these packages are likely to work as well. The figures were created with Python 3.8.2. 
+The replication data and code necessary to recreate Figures 2, 3, 4 A9, and A11 are contained within the `figures/` directory. These figures were created with Python. A full environment file `figures/environment.yml` is provided, but may be difficult to recreate. The minimum required packages are given below. Version numbers are given for reference, though other versions of many of these packages are likely to work as well. The figures were created with Python 3.8.2. 
 
 - pandas (1.2.3)
 - geopandas (0.10.2)
@@ -27,7 +27,7 @@ The replication data and code necessary to recreate Figures 2, 3, 4 A9, and A11 
 - shapely (1.7.0)
 - alphashape (1.3.1)
 
-To build the necessary python environment, please run the following steps:
+To build the necessary python environment, please see the following steps:
 
 1. Clone this repository (`git clone https://github.com/haoliuhoward/undercoverPolicing.git`).
 2. Install [Anaconda](https://www.anaconda.com/download) or [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/main).
