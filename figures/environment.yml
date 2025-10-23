@@ -3,15 +3,14 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - contextily=1.1.0=pyhd8ed1ab_0
-  - geopandas=0.10.2=pyhd8ed1ab_1
-  - matplotlib=3.3.3=py38h578d9bd_0
-  - numpy=1.19.2=py38h54aff64_0
-  - numpy-base=1.19.2=py38hfa32c7d_0
-  - pandas=1.2.3=py38ha9443f7_0
-  - pillow=8.1.2=py38he98fc37_0
-  - python=3.8.2=h191fe78_0
-  - seaborn-base=0.11.1=pyhd8ed1ab_1
-  - shapely=1.7.0=py38h786ee0b_1
+  - contextily=1.1.0
+  - geopandas=0.10.2
+  - matplotlib
+  - numpy=1.19.2
+  - pandas=1.2.3
+  - pillow=8.1.2
+  - python=3.8.2
+  - seaborn-base=0.11.1
+  - shapely=1.7.0
   - pip:
       - alphashape==1.3.1
