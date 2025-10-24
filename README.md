@@ -34,7 +34,7 @@ To build the necessary python environment, please see the following steps:
 3. Within a terminal, navigate to the cloned repository's root directory.
 4. Within the terminal, navigate to the `figures/` subdirectory.
 5. Within the terminal, run the following command: 
-`conda create -n undercover -c conda-forge python=3.8.2 pandas=1.2.3 geopandas=0.10.2 numpy=1.19.2 contextily=1.1.0 seaborn=0.11.1 matplotlib=3.3.3 shapely=1.7.0 alphashape=1.3.1`
+```conda create -n undercover -c conda-forge python=3.8.2 pandas=1.2.3 geopandas=0.10.2 numpy=1.19.2 contextily=1.1.0 seaborn=0.11.1 matplotlib=3.3.3 shapely=1.7.0 alphashape=1.3.1```
 6. Activate the python environment by running `conda activate undercover`.
 7. Navigate your terminal into the folder with the code you wish to run (e.g., `cd fig2/`).
 8. Run the code with `python fig2.py`.
