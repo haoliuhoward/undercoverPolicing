@@ -17,13 +17,11 @@ The replication data and code necessary to recreate Figures 2, 3, 4 A9, and A11 
 
 - pandas (1.2.3)
 - geopandas (0.10.2)
-- numpy (1.19.2)
+- numpy (1.22.4)
 - contextily (1.1.0)
 - seaborn (0.11.1)
 - pillow (8.1.2)
 - matplotlib (3.3.3)  
-  - mpl_toolkits (should be provided with matplotlib)
-- datetime
 - shapely (1.7.0)
 - alphashape (1.3.1)
 
