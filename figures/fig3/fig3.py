@@ -14,8 +14,8 @@ from matplotlib.colors import LinearSegmentedColormap, ListedColormap, LogNorm
 from matplotlib.markers import MarkerStyle
 from matplotlib.lines import Line2D
 import seaborn as sns
-from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,mark_inset)
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+# from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,mark_inset)
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 from matplotlib.cm import get_cmap
 from matplotlib import animation, rc
