@@ -39,6 +39,8 @@ To build the necessary python environment, please see the following steps:
 7. Navigate your terminal into the folder with the code you wish to run (e.g., `cd fig2/`).
 8. Run the code with `python fig2.py`.
 
+*Note*: Some figures rely on third party APIs (like contextily). You may find it difficult to perfectly replicate Figure 2 if the map tile servers change which tile themes are available. Some users, upon trying to replicate Figure 2, have reported different (but geographically accurate) background tiles from those in the manuscript. 
+
 
 Citations
 ---
