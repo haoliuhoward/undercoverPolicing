@@ -149,10 +149,15 @@ re_100m.mod.indoorSp <- glmmTMB(
 summary(re_100m.mod.indoorSp)
 
 
+set.seed(123) 
+nt <- parallel::detectCores() # 20 cores
+ctrl <- glmmTMBControl(optCtrl = list(iter.max = 1e3, eval.max = 1e3),
+                       optimizer = "nlminb", parallel = nt)  
+
 re_100m.mod.t.indoorSp <- glmmTMB(
   indoorSp_UCArrests100m
   ~ cl_quart_sw + cl_quarter + policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation  + indoorSp_protests + 
-    legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, family="gaussian")
+    legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat, control = ctrl, family="gaussian")
 summary(re_100m.mod.t.indoorSp) 
 
 
@@ -233,8 +238,8 @@ screenreg(list(re_park1000m, re_t_park1000m,
             "100m"),
           stars = c(0.01, 0.05, 0.10),
           include.variance=F, include.intercept = F,
-          custom.gof.rows = list(Model = c("RE", "RE", "RE", "RE", "RE"),
-                                 TimePoly = c("N", "Y", "N", "Y","N")),
+          custom.gof.rows = list(Model = c("RE", "RE"),
+                                 TimePoly = c("N", "Y")),
           caption = "Effects of Outdoor Parks on Arrests by Undercover Police (with radius)",
           omit.coef = "(time|time2|time3|(Intercept))",
           digits = 3) 
@@ -264,11 +269,18 @@ model_vio_feols_iv.t <- feols(policeUC_arrest_bin ~ policeUC_count_bin + policeU
                               | CACODE | cl_miniquart_sw + cl_miniquarter ~ weekend + day ,
                               data=panel_dat3hr, panel.id = ~ CACODE)
 
-re_vio.mod <- glmmTMB(policeUC_arrest_bin ~  cl_miniquart_sw + cl_miniquarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo  + (1 | CACODE), data = panel_dat3hr, family="gaussian") 
+set.seed(123) 
+nt <- parallel::detectCores()
+ctrl <- glmmTMBControl(optCtrl = list(iter.max = 1e3, eval.max = 1e3),
+                       optimizer = "nlminb", parallel = nt)  
 
+re_vio.mod <- glmmTMB(policeUC_arrest_bin ~  cl_miniquart_sw + cl_miniquarter +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo  + (1 | CACODE), data = panel_dat3hr, 
+                      control = ctrl,
+                      family="gaussian") 
 
-re_vio.mod.t <- glmmTMB(policeUC_arrest_bin ~  cl_miniquart_sw + cl_miniquarter  +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat3hr, family="gaussian")
-
+re_vio.mod.t <- glmmTMB(policeUC_arrest_bin ~  cl_miniquart_sw + cl_miniquarter  +  policeUC_count_bin +  policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo + time + time2 + time3 + (1 | CACODE), data = panel_dat3hr, 
+                        control = ctrl,
+                        family="gaussian")
 
 
 idvs = c("Closeness to protest zone",  "Protest zone", 
@@ -295,7 +307,6 @@ screenreg(list(model_vio_feols, model_vio_feols.t,
           custom.gof.rows = list(Model = c("FE", "FE", "FE", "FE", "RE", "RE"), TimePoly = c("N", "Y", "N", "Y","N", "Y")),
           omit.coef = "(time|time2|time3|(Intercept))"
 ) 
-
 
 ## Table A.7. Effects on Undercover Policing (1km grid, quarter-day level) -------
 
@@ -351,9 +362,14 @@ re.mod.logit <- glmmTMB(policeUC_arrest_bin ~
                           cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo  + (1 | grid_id), data = panel_dat6hr_grid, family=binomial(link="logit"))
 # summary(re.mod.logit)
 
+set.seed(123) 
+nt <- parallel::detectCores()
+ctrl <- glmmTMBControl(optCtrl = list(iter.max = 1e3, eval.max = 1e3),
+                       optimizer = "optim") 
+
 re.mod.logit.t <- glmmTMB(policeUC_arrest_bin ~
-                            cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo + time + time2 + time3 + (1 | grid_id), data = panel_dat6hr_grid, family=binomial(link="logit"))
-# summary(re.mod.logit.t) # 5min
+                            cl_quart_sw + cl_quarter + policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw + violence_escalation + indoorSp_protests + legCo + time + time2 + time3 + (1 | grid_id), data = panel_dat6hr_grid, control = ctrl, family=binomial(link="logit"))
+# summary(re.mod.logit.t) 
 
 
 idvs2 = c("Intercept", 
@@ -369,6 +385,7 @@ screenreg(list(re.mod.logit, re.mod.logit.t),
           omit.coef = "(time|time2|time3|(Intercept))",
           custom.model.names = c(
             "Logit", "Logit"),
+          stars = c(0.01, 0.05, 0.10),
           custom.coef.names = idvs2,
           custom.gof.rows = list(Model = c("RE", "RE"), TimePoly = c("N", "Y"))) 
 

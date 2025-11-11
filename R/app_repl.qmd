@@ -214,6 +214,10 @@ re_100m.mod.indoorSp <- glmmTMB(
     violence_escalation  + indoorSp_protests + 
     legCo + (1 | CACODE), data = panel_dat, family="gaussian")
 
+set.seed(123) 
+nt <- parallel::detectCores() # 20 cores
+ctrl <- glmmTMBControl(optCtrl = list(iter.max = 1e3, eval.max = 1e3),
+                       optimizer = "nlminb", parallel = nt)  
 
 re_100m.mod.t.indoorSp <- glmmTMB(
   indoorSp_UCArrests100m
@@ -221,7 +225,9 @@ re_100m.mod.t.indoorSp <- glmmTMB(
     policeUni_car_count_bin + pArrest_count_sw + 
     violence_escalation + indoorSp_protests + 
     legCo + time + time2 + time3 + (1 | CACODE),
-  data = panel_dat, family="gaussian")
+  data = panel_dat, 
+  control = ctrl, 
+  family="gaussian")
 
 
 idvs = c( "Intercept", "Close to protest zone",
@@ -365,18 +371,25 @@ model_vio_feols_iv.t <-
           cl_miniquart_sw + cl_miniquarter ~ weekend + day ,
                               data=panel_dat3hr, panel.id = ~ CACODE)
 
+set.seed(123) 
+nt <- parallel::detectCores()
+ctrl <- glmmTMBControl(optCtrl = list(iter.max = 1e3, eval.max = 1e3),
+                       optimizer = "nlminb", parallel = nt)  
+
 re_vio.mod <- glmmTMB(policeUC_arrest_bin ~ cl_miniquart_sw + cl_miniquarter + 
                         policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw +
                         violence_escalation + indoorSp_protests + legCo +
-                        (1 | CACODE), data = panel_dat3hr, family="gaussian") 
+                        (1 | CACODE), data = panel_dat3hr, 
+                      control = ctrl,
+                      family="gaussian") 
 
 
 re_vio.mod.t <- glmmTMB(policeUC_arrest_bin ~ cl_miniquart_sw + cl_miniquarter +
                           policeUC_count_bin + policeUni_car_count_bin + pArrest_count_sw
                         + violence_escalation + indoorSp_protests + legCo + time + time2 + time3
-                        + (1 | CACODE), data = panel_dat3hr, family="gaussian")
-
-
+                        + (1 | CACODE), data = panel_dat3hr,
+                        control = ctrl,
+                        family="gaussian")
 
 idvs = c("Closeness to protest zone",  "Protest zone", 
          "Undercover Police", "Uniformed Police",
@@ -484,12 +497,19 @@ re.mod.logit <- glmmTMB(policeUC_arrest_bin ~ cl_quart_sw + cl_quarter +
                           indoorSp_protests + legCo + (1 | grid_id),
                         data = panel_dat6hr_grid, family=binomial(link="logit"))
 
+set.seed(123) 
+nt <- parallel::detectCores()
+ctrl <- glmmTMBControl(optCtrl = list(iter.max = 1e3, eval.max = 1e3),
+                       optimizer = "optim") 
+
 re.mod.logit.t <- 
   glmmTMB(policeUC_arrest_bin ~ cl_quart_sw + cl_quarter +
             policeUC_count_bin + policeUni_car_count_bin +
             pArrest_count_sw + violence_escalation + indoorSp_protests +
-            legCo + time + time2 + time3 + (1 | grid_id)
-          , data = panel_dat6hr_grid, family=binomial(link="logit"))
+            legCo + time + time2 + time3 + (1 | grid_id),
+          data = panel_dat6hr_grid,
+          control = ctrl,
+          family=binomial(link="logit"))
 
 
 idvs2 = c("Intercept", 
