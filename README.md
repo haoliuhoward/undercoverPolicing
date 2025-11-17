@@ -75,14 +75,14 @@ Citations
 
 Please cite this paper as follows:
 
-Liu, Howard and Benjamin J. Radford. 2025. "Covert Assignments: Undercover Infiltration and the Repression of Protests." _International Studies Quarterly_.
+Liu, Howard and Benjamin J. Radford. Forthcoming. "Covert Assignments: Undercover Infiltration and the Repression of Protests." _International Studies Quarterly_.
 
 ```
 @article{liu:radford:2025,
     author={Howard Liu and Benjamin J. Radford},
     title={{Covert Assignments: Undercover Infiltration and the Repression of Protests}},
     journal={{International Studies Quarterly}},
-    year={2025},
+    year={Forthcoming},
     volume={},
     number={},
     pages={},
