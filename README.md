@@ -86,5 +86,5 @@ Liu, Howard and Benjamin J. Radford. Forthcoming. "Covert Assignments: Undercove
     volume={},
     number={},
     pages={},
-    DOI={}}
+    DOI={https://doi.org/10.1093/isq/sqaf094}}
 ```
