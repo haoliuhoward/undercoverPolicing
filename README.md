@@ -3,8 +3,8 @@
 
 Authors
 ---
-- Howard Liu
-- Benjamin J. Radford
+- [Howard Liu](https://howardliu.com)
+- [Benjamin J. Radford](https://www.benradford.com)
 
 Replication Instructions
 ---
